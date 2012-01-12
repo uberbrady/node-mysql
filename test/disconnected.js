@@ -4,9 +4,9 @@
 var util = require('util');
 var sys=require('sys');
 
-var username='root',dbname='dev_brite_verify';
+var username='root',dbname='brite_verify_development';
 
-var conn = new require("../index").createClient({user: username,database: dbname});
+var conn = new require("../index").createClient({user: username,database: dbname,timeout: 10});
 
 conn.query("SELECT * FROM users WHERE 1=0",function (err,results,fields) {
     //we need to run this in this callback context otherwise the database won't have been connected-to
