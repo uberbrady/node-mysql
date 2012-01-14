@@ -13,7 +13,7 @@ var username='root',dbname='brite_verify_development';
 var conn = new mysql.Client();
 conn.user= username;
 conn.database= dbname;
-
+conn.debug=true;
 conn.connect();
 
 conn.on('connected',function () {
@@ -22,9 +22,9 @@ conn.on('connected',function () {
    //we need to run this in this callback context otherwise the database won't have been connected-to
    sys.debug("Database connection is connected for sure");
    conn.query("SELECT * FROM users LIMIT 1",function (err,results,fields) {
-       sys.debug("THIS WILL NEVER GET CALLED!!!!! "+sys.inspect(err)+" "+sys.inspect(results)+" "+sys.inspect(fields));
+       sys.debug("THIS WILL NEVER GET CALLED!!!!! ",err," "+results.length+" "+fields.length);
 			 conn.query("SELECT * FROM users WHERE 1=1 LIMIT 10",function (err,results,fields) {
-				sys.debug("Here are the results:"+sys.inspect(arguments));
+				sys.debug("Here are the results:"+results.length);
 				sys.debug("Neither will this get called.");
 				conn.end();
 			});

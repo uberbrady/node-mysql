@@ -84,6 +84,43 @@ client.query(
 
 ## API
 
+### new Client() [ low-level interface ]
+
+Raw interface for creating clients. Only one query may be runnable at any one time.
+You need to set options after creating the client, and then call ```connect()``` when ready. Client will emit 'connected' when ready.
+
+Note that only one query can run at a time.
+
+```js
+var conn=new Client();
+conn.host = 'hostname';
+conn.user = 'username';
+...
+conn.connect();
+```
+Let's look at two examples:
+
+```js
+conn.on('connected',function () { 
+	conn.query("SELECT * FROM foo",cb);
+	conn.query("SELECT * FROM baz",cb2);
+}
+```
+
+Immediately upon issuing the second query, an error will be emitted - the connection is already busy.
+
+Instead, you should do:
+
+```js
+conn.on('connected',function() {
+	conn.query("SELECT * FROM foo",function (err,results,fields) {
+		conn.query("SELECT * FROM baz",cb2);
+	}
+}
+```
+
+This is a lower-level interface for people who want tighter control of their database connections. The default implementation of mysql.createClient() below handles reconnections, query queueing, and connection errors for you.
+
 ### mysql.createClient([options])
 
 Creates a new client instance. Any client property can be set using the
@@ -116,6 +153,20 @@ Prints incoming and outgoing packets, useful for development / testing purposes.
 ### client.flags = Client.defaultFlags
 
 Connection flags send to the server.
+
+### connection pooling and queuing (new features)
+
+```client.numconns``` is the maximum number of active DB connections (default 1)
+```client.maxqueue``` is the maximum size of the DB query queue you want (default infinity)
+```client.timeout``` is the amount of time before you trigger an error due to timeout after query is queued (default infinity). It's also a timeout for DB connection - after which a retry will occur.
+
+Leaving the defaults set should result in a mysql client object that acts very much like the previous versions of node-mysql. (Only one connection, infinitely large queue, no timeouts).
+
+A query that would exceed the maximum queue size will immediately emit an error.
+
+Queries may run on *any* connection - whichever one is idle, actually. If you need multiple queries to affect one particular connection (for example, in a transaction), you should use the low-level interface to fetch one actual connection. A future API may expose the connections and allow you to extract one for your transactional use, then put it back.
+
+If a query is enqueued (using ```conn.query()```) and does not complete execution by 'timeout' seconds, a 'timeout' is emitted on the query object.
 
 ### client.query(sql, [params, cb])
 
