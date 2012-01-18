@@ -3,7 +3,7 @@
 
 var util = require('util');
 var sys=require('sys');
-var mysql=require("../index");
+var mysql=require("../../index");
 
 //single connection test
 
