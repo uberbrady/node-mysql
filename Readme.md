@@ -159,6 +159,7 @@ Connection flags send to the server.
 ```client.numconns``` is the maximum number of active DB connections (default 1)
 ```client.maxqueue``` is the maximum size of the DB query queue you want (default infinity)
 ```client.timeout``` is the amount of time before you trigger an error due to timeout after query is queued (default infinity). It's also a timeout for DB connection - after which a retry will occur.
+```client.retry``` is the time after which a reconnection to MySQL will be attempted upon an error (default 30 seconds). _Note, this *should* be the only incompatibility with stock node-mysql.
 
 Leaving the defaults set should result in a mysql client object that acts very much like the previous versions of node-mysql. (Only one connection, infinitely large queue, no timeouts).
 
